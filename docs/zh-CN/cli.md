@@ -32,7 +32,7 @@ model.generator.model.5.conv1.bn_l.running_var      4.84e+5  batch-norm-running-
 | 选项                 | 默认值 | 含义                                    |
 | -------------------- | -----: | --------------------------------------- |
 | `--json`             |  false | 以 JSON 输出完整报告（schema 见下）     |
-| `--fail-on-overflow` |  false | 任何张量装不下时以退出码 **2** 结束     |
+| `--fail-on-overflow` |  false | 任何张量超出范围时以退出码 **2** 结束   |
 | `--limit <n>`        |  65504 | fp16 范围上限                           |
 | `--target-max <n>`   |  40000 | 计算重缩放系数时使用的目标 `max\|var\|` |
 
@@ -113,7 +113,7 @@ onnx-fp16-guard convert model.onnx -o model.fp16.onnx
 示例：
 
 ```bash
-# CI：如果模型会被损坏就失败，绝不写出不安全的文件
+# CI：模型一旦会被损坏就直接失败，绝不写出有问题的文件
 onnx-fp16-guard convert model.onnx --overflow=error -o /tmp/check.onnx
 
 # 混合精度：attention softmax 的数学计算留在 fp32

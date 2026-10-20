@@ -32,22 +32,22 @@
 实现要点：
 
 - `K` 始终取 2 的幂，因此 `var/K²`、`γ/K`、`ε/K²` 在 binary32 中都是精确的。唯一的舍入来自最后一步 fp32 → fp16。
-- 如果节点没有 `epsilon` 属性，会**补上** ONNX 的默认值（1e-5）再参与缩放。忘记这一点是产生细小、静默漂移的经典原因。
+- 如果节点没有 `epsilon` 属性，会**补上** ONNX 的默认值（1e-5）再参与缩放。忘记这一点，往往就会引入难以察觉的细小偏差。
 - 如果同一个初始化器被需要不同 `K` 的多个 BatchNorm 层共享，转换会直接停止，而不是猜测。
 
-## 3. 转换浮点载荷
+## 3. 转换浮点数据
 
 - 每个 `float32` 初始化器都通过就近舍入到偶数（RNE）变成 `float16`（与 NumPy 逐位一致，包括次正规数与上溢为无穷）。
 - 重写 `raw_data`；已废弃的 `float_data` 也统一输出为 `raw_data`。
-- `Constant` 节点里的浮点张量同样会被转换——LaMa 有 364 个这样的张量（FFT 基矩阵）直接存在图体里。
+- `Constant` 节点里的浮点张量同样会被转换——LaMa 有 364 个这样的张量（FFT 基矩阵）直接存在计算图里。
 - 如果某个张量的**所有**消费者都被屏蔽，它保持 `float32`：转换它只会多出一个转回去的 Cast。
-- 已有的 `Cast(…, to=float32)` 节点会被改成 fp16——否则「除了 Cast 之外全都转换了」的图会通不过类型检查。只喂给被屏蔽节点的 Cast 保持原样（避免无意义的 fp16→fp32 往返）。
+- 已有的 `Cast(…, to=float32)` 节点会被改成 fp16——否则「除了 Cast 之外全都转换了」的图会通不过类型检查。只供被屏蔽节点使用的 Cast 保持原样（避免无意义的 fp16→fp32 往返）。
 
 ## 4. 插入 fp16 ⇄ fp32 边界
 
 转换器为每个张量维护一张元素类型表，来源包括：
 
-- 初始化器与 `Constant` 载荷的 dtype；
+- 初始化器与 `Constant` 内嵌数据的 dtype；
 - `Cast` 的 `to` 属性；
 - 图的输入类型；
 - 已知的非浮点输出（`Shape`、`Size`、`ArgMax`、`NonZero` → int64；`Equal`、`Less`、`Not`、`IsNaN` → bool）；
@@ -77,7 +77,7 @@
 v0.1 的诚实边界：
 
 - **子图**（`If`、`Loop`、`Scan` 的 body）不会被遍历。如果模型在子图里存浮点初始化器，它们会保持 fp32。图仍能加载，只是体积收益少了一部分。
-- **外部数据**（带 `external_data` 条目的 `TensorProto`）会被明确拒绝并报错——请先把它物化（`onnx.external_data_helper.convert_model_from_external_data`）。
+- **外部数据**（带 `external_data` 条目的 `TensorProto`）会被明确拒绝并报错——请先把它转成内嵌数据（`onnx.external_data_helper.convert_model_from_external_data`）。
 - **稀疏初始化器**会被忽略。
 - **int8 / int4 量化**不在范围内；这是 fp16 工具。
 - 算子屏蔽列表只是**默认值**，不是运行时能力探测。如果你的运行时缺少某个我们没列出的 fp16 kernel，请用 `blockOps` 指定。

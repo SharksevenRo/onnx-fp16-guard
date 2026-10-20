@@ -2,7 +2,7 @@
 
 > English · [简体中文](README.zh-CN.md)
 
-**fp16 conversion for ONNX that refuses to silently destroy your model.**
+**fp16 conversion for ONNX that halves the file without losing quality — and refuses to silently destroy your model.**
 
 [![npm](https://img.shields.io/npm/v/onnx-fp16-guard.svg)](https://www.npmjs.com/package/onnx-fp16-guard)
 [![CI](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml)

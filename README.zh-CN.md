@@ -2,7 +2,7 @@
 
 > English · **简体中文**
 
-**拒绝悄悄毁掉你模型的 ONNX fp16 转换工具。**
+**把 ONNX 模型转成 fp16：体积约减半，画质无损——遇到会让模型损坏的权重，它先告诉你，而不是悄悄截断。**
 
 [![npm](https://img.shields.io/npm/v/onnx-fp16-guard.svg)](https://www.npmjs.com/package/onnx-fp16-guard)
 [![CI](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml)
@@ -22,9 +22,9 @@ model.generator.model.25.running_var                4.41e+5  batch-norm-running-
   16 of 75 BatchNormalization layer(s) need attention
 ```
 
-几乎所有主流 fp16 转换工具都会把这些数值**截断到 65504**，然后一言不发地把模型交给你——而这个模型输出的已经是垃圾。本工具会先告诉你，然后修好它。
+几乎所有主流 fp16 转换工具都会把这些数值**截断到 65504**，不给任何提示——而这样得到的模型，输出已经完全不可用。本工具会先指出问题，再把它修好。
 
-- **零依赖**，除 ONNX protobuf 定义外不需要任何运行时——纯 TypeScript，不依赖 Python，也不依赖 onnxruntime。
+- **除 ONNX protobuf 定义外没有任何运行时依赖**——纯 TypeScript，不需要 Python，也不需要 onnxruntime。
 - **随处可跑**——Node 18+、CI，或者直接在浏览器里（核心代码不引用任何 Node 内置模块）。
 - **默认开启防护**——`--overflow=rescale` 用代数恒等式修复 BatchNorm；`--overflow=error` 把转换变成 CI 门禁。
 
@@ -32,24 +32,24 @@ model.generator.model.25.running_var                4.41e+5  batch-norm-running-
 
 ## 13.9 dB 的那个 bug
 
-2026 年 10 月，我们上线了一个浏览器端的图像修复模型（LaMa，208 MB），并尝试用常规的 float16 转换把下载体积减半。结果模型看起来坏掉了：遮罩区域 PSNR 从 **29.74 dB 掉到 15.81 dB**。
+2026 年 10 月，我们上线了一个浏览器端的图像修复模型（LaMa，208 MB），并尝试用常规的 float16 转换把下载体积减半。结果模型明显出了问题：遮罩区域 PSNR 从 **29.74 dB 掉到 15.81 dB**。
 
-权重没问题，精度也没问题（我们把尾数砍到 7 位，肉眼看不出损失）。问题出在**数值范围**：606 个张量里有 16 个——全部是 BatchNorm 的 `running_var`——最大值高达 **484,322**，远超 fp16 能表示的最大有限值 **65,504**。
+权重没问题，精度也没问题（我们把尾数压到 7 位，肉眼也看不出差别）。问题出在**数值范围**：606 个张量里有 16 个——全部是 BatchNorm 的 `running_var`——最大值高达 **484,322**，远超 fp16 能表示的最大有限值 **65,504**。
 
 ```
 model.5.conv1.bn_l.running_var = 484,322.56   → fp16 截断 → 65,504.0
 1 / sqrt(var)                  偏大 2.7×      → 该层输出被放大 2.7×
 ```
 
-没有任何工具警告我们。`onnxconverter-common` 默认用更激进的 `max_finite_val=10000`（误差 48×），而且它的 `float16` 转换器不打任何日志。直接 `astype(float16)` 更糟：会产生 `inf`，而 `sqrt(inf)` 会让这一层的输出变成常数。
+没有一个工具提醒过我们。`onnxconverter-common` 默认用更激进的 `max_finite_val=10000`（误差 48×），并且它的 `float16` 转换器不输出任何日志。直接 `astype(float16)` 更糟：会产生 `inf`，而 `sqrt(inf)` 会让这一层的输出变成常数。
 
-修复方法是一个代数恒等式——把 `var`、`scale`、`epsilon` 同时除以 2 的幂：
+修复方法是一个代数恒等式——把 `var`、`scale`、`epsilon` 按 2 的幂重新缩放：
 
 ```
 y = (x − μ) / √(var + ε) · γ + β
   ≡ (x − μ) / √(var/K² + ε/K²) · (γ/K) + β          K = 2^⌈log₂(max|var| / 40000)⌉
 
-484,322 / 16² = 1,892      → 装得进 fp16，函数不变，不增加任何节点
+484,322 / 16² = 1,892      → 稳稳落在 fp16 范围内，函数不变，不增加任何节点
 ```
 
 | 方案                            | 遮罩区域 PSNR | 相对 fp32 | 体积      |
@@ -90,7 +90,7 @@ onnx-fp16-guard verify model.onnx model.fp16.onnx
 | `--overflow=rescale`  | **默认**——用代数方法修复溢出的 BatchNorm 层                       |
 | `--overflow=block`    | 让受影响的层保持 fp32（插入 `Cast` 边界，无精度损失）             |
 | `--overflow=error`    | 只要有任何张量超过 65504 就中止——适合放进 CI                      |
-| `--fail-on-overflow`  | `inspect` 发现张量装不下时以退出码 2 结束                         |
+| `--fail-on-overflow`  | `inspect` 发现张量超出范围时以退出码 2 结束                       |
 | `--block-op <op>`     | 让某类算子保持 fp32（可重复；`Range`/`Resize`/`TopK` 默认已屏蔽） |
 | `--block-node <glob>` | 让匹配的节点保持 fp32（可重复，支持 `*` 与 `/regex/`）            |
 | `--no-keep-io`        | 连图的输入/输出也改成 fp16                                        |
@@ -136,19 +136,19 @@ API 参考：[docs/zh-CN/api.md](docs/zh-CN/api.md)。
 
 ## 它做了什么
 
-1. **检查**每一个浮点张量——初始化器**以及** `Constant` 节点的载荷——找出超出 `[−65504, 65504]` 的值。
-2. **修复**溢出的 BatchNorm 层：用上面的 2 的幂重缩放（或者冻结为 fp32，或者直接拒绝——由你决定）。
+1. **检查**所有浮点张量——包括初始化器和 `Constant` 节点内嵌的数据——找出超出 `[−65504, 65504]` 的值。
+2. **修复**溢出的 BatchNorm 层：用上面的 2 的幂重缩放（也可以冻结为 fp32 或直接中止——由你决定）。
 3. **转换** float32 → float16，采用就近舍入到偶数（RNE），与 NumPy 的 `astype(np.float16)` 逐位一致，包括次正规数与上溢为无穷。
-4. **保持计算图合法**：把已有的 `Cast(to=float32)` 改为 fp16；在被屏蔽的算子两侧插入 fp16 ⇄ fp32 的 `Cast`；正确识别 int64/bool 张量；做拓扑排序，并校验结构。
-5. **如实报告**改动——评审能看到每一处变化，绝无静默截断。
+4. **保持计算图合法**：把已有的 `Cast(to=float32)` 改为 fp16；在被屏蔽的算子两侧插入 fp16 ⇄ fp32 的 `Cast`；正确区分 int64/bool 张量；做拓扑排序，并校验结构。
+5. **如实报告**每一处改动——评审能看到全部变化，不会出现不声不响的截断。
 
 ## 什么时候该用
 
-**该用**：模型要跑在有 fp16 kernel 的运行时上（WebGPU、CUDA、CoreML、DirectML），并且下载体积很重要。字节数减半，输出不变。
+**该用**：模型要跑在有 fp16 kernel 的运行时上（WebGPU、CUDA、CoreML、DirectML），并且下载体积很重要。体积约减半，输出不变。
 
 **谨慎用**：WASM。onnxruntime-web 的 WASM 后端没有原生 fp16 计算，fp16 模型在那里会**更慢**（内部要插入 Cast、再用 fp32 计算）。给纯 CPU 设备留一份 fp32 副本——或者先跑 benchmark。
 
-**别用**：权重的确需要超过 65504、且不是 BatchNorm 统计量的模型。工具会报告它们，并按你的选择拒绝转换（`--overflow=rescale`）、保持 fp32（`--overflow=block`）或让 CI 失败（`--overflow=error`）。它从不静默截断。
+**别用**：权重的确需要超过 65504、且不是 BatchNorm 统计量的模型。工具会把这些张量列出来，再按你的选择中止转换（`--overflow=rescale`）、让它们留在 fp32（`--overflow=block`），或让 CI 失败（`--overflow=error`）。它绝不会在不告知你的情况下截断。
 
 ## 验证
 
@@ -172,7 +172,7 @@ node scripts/bench.mjs model.onnx # 体积与耗时（见 BENCHMARKS.md）
 | [cli.md](docs/zh-CN/cli.md)                         | 所有参数与退出码                      |
 | [api.md](docs/zh-CN/api.md)                         | 类型、函数、选项                      |
 | [browser.md](docs/zh-CN/browser.md)                 | 在浏览器里转换，以及在浏览器里跑 fp16 |
-| [case-study-lama.md](docs/zh-CN/case-study-lama.md) | 208 MB 图像修复模型的完整案例         |
+| [case-study-lama.md](docs/zh-CN/case-study-lama.md) | 完整案例：208 MB → 102 MB，画质无损   |
 | [BENCHMARKS.md](BENCHMARKS.zh-CN.md)                | 如何复现这些数字                      |
 | [faq.md](docs/zh-CN/faq.md)                         | 简答                                  |
 
@@ -189,12 +189,12 @@ node scripts/bench.mjs model.onnx # 体积与耗时（见 BENCHMARKS.md）
 **模型会变快吗？**
 在 WebGPU/CUDA/CoreML 上通常会，因为内存带宽减半。在 WASM/CPU 上不会，反而更慢。请自行测量。
 
-**模型本来就是 fp16 呢？**
-`inspect` 会报告 fp16 载荷，`convert` 则是空操作。
+**模型已经是 fp16 呢？**
+`inspect` 会报告 fp16 数据量，`convert` 则什么都不做。
 
 **为什么叫这个名字？**
-因为它守住了所有其他工具都会静默执行的那一步转换。
+因为它专门盯住其他工具都会悄悄做掉的那一步转换。
 
 ## 许可证
 
-[Apache-2.0](LICENSE)。代码抽取自 [ClearPix](https://clearpix.org) 浏览器端照片编辑器——在那里，同一份代码让一个 208 MB 的修复模型以 102 MB 运行而不损失画质。
+[Apache-2.0](LICENSE)。代码抽取自 [ClearPix](https://clearpix.org) 浏览器端照片编辑器——在那里，同一份代码让一个 208 MB 的修复模型以 102 MB 运行，画质无损。

@@ -97,7 +97,7 @@ const bytes = encodeModel(model);
 | `blockOps`         | `string[]`                        | `[]`        | 额外保持 fp32 的算子类型              |
 | `blockNodes`       | `string[]`                        | `[]`        | 保持 fp32 的节点名（`*`、`/regex/`）  |
 | `defaultBlockOps`  | `boolean`                         | `true`      | 是否应用 `DEFAULT_FP32_OPS`           |
-| `convertConstants` | `boolean`                         | `true`      | 是否转换 `Constant` 节点里的浮点载荷  |
+| `convertConstants` | `boolean`                         | `true`      | 是否转换 `Constant` 节点里的浮点数据  |
 | `toposort`         | `boolean`                         | `true`      | 插入 Cast 后是否重新排序节点          |
 | `validate`         | `boolean`                         | `true`      | 是否对结果做结构校验                  |
 
@@ -127,12 +127,12 @@ const bytes = encodeModel(model);
 
 ### `inspectModel(model, options?) → InspectionReport`
 
-只读分析。开销：遍历一遍浮点载荷（200 MB 模型约 60 ms）。
+只读分析。开销：遍历一遍浮点数据（200 MB 模型约 60 ms）。
 
 ```ts
 const report = inspectModel(decodeModel(bytes), { limit: 65504, targetMax: 40000 });
-report.overflow.findings; // 装不下的张量
-report.tensors.projectedPayloadBytes; // 预计的 fp16 载荷大小
+report.overflow.findings; // 超出范围的张量
+report.tensors.projectedPayloadBytes; // 预计的 fp16 数据量
 report.ops; // 已排序的算子直方图
 ```
 
@@ -196,7 +196,7 @@ encodeModel(model: ModelProto): Uint8Array
 ```ts
 tensorDims(t): number[]
 tensorElementCount(t): number
-tensorBytes(t): number // 存储载荷大小
+tensorBytes(t): number // 实际存储的字节数
 tensorAbsMax(t): number | undefined // 全量扫描，不拷贝
 readFloat32Tensor(t): Float32Array // rawData 或已废弃的 floatData
 readFloat16Tensor(t): Float32Array // 解码为 f32 数值
