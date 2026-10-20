@@ -1,6 +1,6 @@
 {
   "name": "onnx-fp16-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Safe fp16 (float16) conversion for ONNX models. Detects and fixes the BatchNorm range overflow that silently destroys quantized models.",
   "keywords": [
     "onnx",

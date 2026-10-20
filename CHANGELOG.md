@@ -6,16 +6,26 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-10-20
+
 ### Added
 
 - Pre-bundled browser build: `onnx-fp16-guard/browser` (and `dist/browser.js`)
   ships the library with `onnx-proto` inlined, so a page can convert models
-  without a bundler, an import map or a CDN.
+  without a bundler, an import map or a CDN. The previous `dist/index.js` kept
+  a bare `onnx-proto` specifier, which a browser cannot resolve.
 - GitHub Pages workflow that publishes the browser example as a static site
-  (`site/index.html` landing page + `examples/browser/` + `dist/browser.js`).
-- Simplified Chinese documentation: `README.zh-CN.md`, `BENCHMARKS.zh-CN.md` and
-  `docs/zh-CN/` (why fp16 breaks, how it works, CLI, API, browser, LaMa case
-  study, FAQ).
+  (`site/index.html` landing page + `examples/browser/` + `dist/browser.js`) at
+  <https://sharksevenro.github.io/onnx-fp16-guard/>.
+- Live demo link in both READMEs, and a "Supported by clearpix.org" footer on
+  the example page.
+
+### Changed
+
+- The published tarball no longer contains source maps: they point at sources
+  that are not published, and they doubled the download size.
+
+## [0.1.0] — 2026-10-20
 
 ## [0.1.0] — 2026-10-20
 
@@ -43,6 +53,9 @@ First public release, extracted from the fp16 pipeline of the
 - Optional numerical verification through `onnxruntime-node`
   (`verifyModels()` / `verify`).
 - Browser-safe core; drag-and-drop example in `examples/browser`.
+- Simplified Chinese documentation: `README.zh-CN.md`, `BENCHMARKS.zh-CN.md` and
+  `docs/zh-CN/` (why fp16 breaks, how it works, CLI, API, browser, LaMa case
+  study, FAQ).
 - Documentation: [why fp16 breaks](docs/why-fp16-breaks.md),
   [how it works](docs/how-it-works.md), [CLI](docs/cli.md), [API](docs/api.md),
   [browser guide](docs/browser.md), [LaMa case study](docs/case-study-lama.md),
@@ -57,5 +70,6 @@ First public release, extracted from the fp16 pipeline of the
   model at 66.3 dB (masked region) / 76.7 dB (full frame).
 - Four additional real models (ESRGAN ×2, PP-OCR, MI-GAN) convert, load and run.
 
-[Unreleased]: https://github.com/SharksevenRo/onnx-fp16-guard/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/SharksevenRo/onnx-fp16-guard/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/SharksevenRo/onnx-fp16-guard/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/SharksevenRo/onnx-fp16-guard/releases/tag/v0.1.0
