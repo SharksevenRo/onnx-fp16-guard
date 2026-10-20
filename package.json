@@ -42,7 +42,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./browser": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/browser.js"
+    }
   },
   "bin": {
     "onnx-fp16-guard": "./dist/cli.js",
@@ -50,7 +54,9 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.map",
     "README.md",
+    "README.zh-CN.md",
     "LICENSE",
     "NOTICE",
     "CHANGELOG.md"

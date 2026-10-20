@@ -8,6 +8,7 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 tmp/
+_site/
 models/
 *.onnx
 !test/fixtures/*.onnx

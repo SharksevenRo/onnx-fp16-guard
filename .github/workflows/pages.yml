@@ -1,0 +1,65 @@
+name: Pages
+
+# Publishes the browser example as a static site:
+#   https://SharksevenRo.github.io/onnx-fp16-guard/
+#
+# The site is assembled from three pieces:
+#   site/index.html            → landing page
+#   examples/browser/          → the drag-and-drop demo
+#   dist/browser.js            → the library, pre-bundled with onnx-proto
+#
+# Enable it once in the repository settings: Settings → Pages → Source:
+# "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      - name: Assemble the site
+        run: |
+          rm -rf _site
+          mkdir -p _site/examples/browser _site/dist
+          cp site/index.html _site/index.html
+          cp examples/browser/index.html _site/examples/browser/index.html
+          cp dist/browser.js dist/browser.js.map _site/dist/
+          touch _site/.nojekyll
+          echo "--- site ---"
+          find _site -type f | sort
+          echo "--- size ---"
+          du -sh _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

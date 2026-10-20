@@ -4,6 +4,9 @@ A drag-and-drop converter: drop an `.onnx` file, see what is in it, convert it t
 fp16, download the result. Everything happens locally — the model is never
 uploaded.
 
+**Live demo:**
+<https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/>
+
 ## Run it
 
 ```bash
@@ -15,7 +18,16 @@ npx serve .          # or: python3 -m http.server 8000
 Open <http://localhost:3000/examples/browser/>.
 
 ES modules cannot be imported from `file://`, so a local server is required.
-The page imports `../../dist/index.js`, which is why `npm run build` comes first.
+The page imports `../../dist/browser.js` — the library with `onnx-proto` inlined —
+which is why `npm run build` comes first. That build has no bare import
+specifiers, so the page works on any static host without a bundler or an import
+map.
+
+The same bundle is published to npm:
+
+```js
+import { convertBytes } from 'onnx-fp16-guard/browser';
+```
 
 ## What it demonstrates
 
@@ -48,3 +60,17 @@ The page imports `../../dist/index.js`, which is why `npm run build` comes first
 If you then run the model with `onnxruntime-web`, read
 [../../docs/browser.md](../../docs/browser.md) first: fp16 is a win on WebGPU and
 a loss on WASM.
+
+## Publishing it yourself
+
+The repository ships a GitHub Pages workflow
+(`.github/workflows/pages.yml`) that assembles the same site:
+
+```
+_site/index.html              ← site/index.html (landing page)
+_site/examples/browser/       ← this folder
+_site/dist/browser.js         ← npm run build
+```
+
+Enable it once: **Settings → Pages → Source: GitHub Actions**. The workflow
+then serves the site at `https://<user>.github.io/<repo>/`.

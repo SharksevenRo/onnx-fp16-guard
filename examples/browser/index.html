@@ -189,6 +189,20 @@
         min-height: 18px;
         white-space: pre-wrap;
       }
+      footer {
+        margin-top: 40px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        color: var(--dim);
+        font-size: 12px;
+      }
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
       [hidden] {
         display: none !important;
       }
@@ -228,14 +242,27 @@
 
       <p class="hint">
         fp16 is a delivery optimisation: use it with WebGPU. On WASM the model is cast back to fp32 internally
-        and runs slower — see <code>docs/browser.md</code>.
+        and runs slower — see
+        <a href="https://github.com/SharksevenRo/onnx-fp16-guard/blob/main/docs/browser.md"
+          >the browser guide</a
+        >.
       </p>
       <div id="log"></div>
+
+      <footer>
+        Supported by <a href="https://clearpix.org">clearpix.org</a> ·
+        <a href="https://github.com/SharksevenRo/onnx-fp16-guard/blob/main/docs/api.md">API reference</a> ·
+        <a href="https://github.com/SharksevenRo/onnx-fp16-guard/blob/main/docs/why-fp16-breaks.md"
+          >why fp16 breaks models</a
+        >
+      </footer>
     </main>
 
     <script type="module">
-      // Built from the repository root with `npm run build`.
-      import { convertBytes, decodeModel, inspectModel } from '../../dist/index.js';
+      // `dist/browser.js` is built from the repository root with `npm run build`.
+      // It is the library with `onnx-proto` inlined, so this page works as a
+      // plain static site — no bundler, no import map, no CDN.
+      import { convertBytes, decodeModel, inspectModel } from '../../dist/browser.js';
 
       const drop = document.getElementById('drop');
       const input = document.getElementById('file');
