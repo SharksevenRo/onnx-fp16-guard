@@ -6,10 +6,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Simplified Chinese documentation: `README.zh-CN.md`, `BENCHMARKS.zh-CN.md` and
+  `docs/zh-CN/` (why fp16 breaks, how it works, CLI, API, browser, LaMa case
+  study, FAQ).
+
 ## [0.1.0] — 2026-10-20
 
 First public release, extracted from the fp16 pipeline of the
-[ClearPix](https://github.com/SharksevenRo/clearpix) browser photo editor.
+[ClearPix](https://clearpix.org) browser photo editor.
 
 ### Added
 

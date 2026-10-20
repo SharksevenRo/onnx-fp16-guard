@@ -76,6 +76,25 @@ kernel in ONNX Runtime. To add one:
 Ops that merely _lose precision_ do not belong in the list — the list is for
 correctness/load failures only.
 
+## Translations
+
+English is the source of truth. Simplified Chinese translations live next to the
+originals:
+
+| English          | 简体中文               |
+| ---------------- | ---------------------- |
+| `README.md`      | `README.zh-CN.md`      |
+| `BENCHMARKS.md`  | `BENCHMARKS.zh-CN.md`  |
+| `docs/<name>.md` | `docs/zh-CN/<name>.md` |
+
+Rules:
+
+- Keep numbers, flags, code blocks and API names unchanged.
+- When you change an English document, update the Chinese file in the same PR if
+  you can read both, or open a follow-up issue labelled `docs` — a stale
+  translation is worse than a missing one.
+- Do not "improve" a translation beyond what the English says.
+
 ## Reporting a bad conversion
 
 Open an issue with:
