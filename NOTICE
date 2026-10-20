@@ -1,0 +1,29 @@
+onnx-fp16-guard
+Copyright 2026 ClearPix
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+---
+
+This project's BatchNorm rescaling strategy and default fp32 op block list are
+informed by prior art:
+
+* onnxconverter-common (MIT, Microsoft) — `float16.convert_float_to_float16`,
+  including the `max_finite_val` clamp and the default op block list.
+  https://github.com/microsoft/onnxconverter-common
+* ONNX Runtime (MIT, Microsoft) — `onnxruntime.tools.convert_onnx_models_to_float16`
+  and the operator kernels that define which ops run in fp16.
+  https://github.com/microsoft/onnxruntime
+
+ONNX itself is a trademark of The Linux Foundation. This project is not
+affiliated with or endorsed by the ONNX project.

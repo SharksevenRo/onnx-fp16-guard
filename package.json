@@ -1,0 +1,88 @@
+{
+  "name": "onnx-fp16-guard",
+  "version": "0.1.0",
+  "description": "Safe fp16 (float16) conversion for ONNX models. Detects and fixes the BatchNorm range overflow that silently destroys quantized models.",
+  "keywords": [
+    "onnx",
+    "fp16",
+    "float16",
+    "quantization",
+    "quantize",
+    "model-compression",
+    "onnxruntime",
+    "onnxruntime-web",
+    "webgpu",
+    "wasm",
+    "browser",
+    "edge",
+    "batch-normalization",
+    "lama",
+    "inpainting"
+  ],
+  "license": "Apache-2.0",
+  "author": "ClearPix (https://clearpix.org)",
+  "homepage": "https://github.com/SharksevenRo/onnx-fp16-guard#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SharksevenRo/onnx-fp16-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SharksevenRo/onnx-fp16-guard/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "onnx-fp16-guard": "./dist/cli.js",
+    "onnx-fp16": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run test",
+    "bench": "npm run build && node scripts/bench.mjs",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "onnx-proto": "^8.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsup": "^9.0.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^4.1.12"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
