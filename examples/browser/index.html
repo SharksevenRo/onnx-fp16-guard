@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>onnx-fp16-guard — convert an ONNX model in your browser</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0e14;
+        --panel: #121722;
+        --border: #232b3b;
+        --text: #d7dde8;
+        --dim: #7d8899;
+        --green: #7ee787;
+        --red: #ff7b72;
+        --yellow: #e3b341;
+        --accent: #58a6ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(1200px 600px at 50% -20%, #16203a 0%, var(--bg) 60%);
+        color: var(--text);
+        font:
+          14px/1.55 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        display: flex;
+        justify-content: center;
+        padding: 48px 20px;
+      }
+      main {
+        width: min(880px, 100%);
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 6px;
+        letter-spacing: -0.01em;
+      }
+      h1 code {
+        color: var(--green);
+      }
+      .sub {
+        color: var(--dim);
+        margin: 0 0 28px;
+      }
+      .sub a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      #drop {
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        background: var(--panel);
+        padding: 44px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 120ms,
+          background 120ms;
+      }
+      #drop:hover,
+      #drop.over {
+        border-color: var(--accent);
+        background: #151d2c;
+      }
+      #drop strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 6px;
+      }
+      #drop span {
+        color: var(--dim);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 20px;
+      }
+      @media (max-width: 700px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        min-width: 0;
+      }
+      .card h2 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin: 0 0 12px;
+        font-weight: 600;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 14px;
+        margin: 0;
+      }
+      dt {
+        color: var(--dim);
+      }
+      dd {
+        margin: 0;
+        text-align: right;
+        overflow-wrap: anywhere;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 12px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 4px 6px;
+        border-top: 1px solid var(--border);
+        overflow-wrap: anywhere;
+      }
+      th {
+        color: var(--dim);
+        font-weight: 500;
+      }
+      td.num {
+        text-align: right;
+        white-space: nowrap;
+      }
+      .ok {
+        color: var(--green);
+      }
+      .bad {
+        color: var(--red);
+      }
+      .warn {
+        color: var(--yellow);
+      }
+      button,
+      .button {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #1b2434;
+        color: var(--text);
+        border-radius: 8px;
+        padding: 9px 16px;
+        font: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      button.primary {
+        background: #1f6feb;
+        border-color: #1f6feb;
+        color: #fff;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+      .hint {
+        color: var(--dim);
+        font-size: 12px;
+        margin: 18px 0 0;
+      }
+      #log {
+        margin-top: 18px;
+        color: var(--dim);
+        font-size: 12px;
+        min-height: 18px;
+        white-space: pre-wrap;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1><code>onnx-fp16-guard</code> — convert in the browser</h1>
+      <p class="sub">
+        The file never leaves your machine.
+        <a href="https://github.com/SharksevenRo/onnx-fp16-guard">Source</a>
+        · conversion runs on the main thread; for 200 MB models run it in a worker.
+      </p>
+
+      <div id="drop" role="button" tabindex="0">
+        <strong>Drop an .onnx model here</strong>
+        <span>or click to choose a file · inspected and converted locally</span>
+        <input id="file" type="file" accept=".onnx,application/octet-stream" hidden />
+      </div>
+
+      <div class="grid">
+        <section class="card" id="inspect-card" hidden>
+          <h2>Inspection</h2>
+          <dl id="inspect-list"></dl>
+          <div id="overflow"></div>
+        </section>
+
+        <section class="card" id="convert-card" hidden>
+          <h2>Conversion</h2>
+          <dl id="convert-list"></dl>
+          <div class="actions">
+            <button id="convert" class="primary">Convert to fp16</button>
+            <a id="download" class="button" hidden download>Download</a>
+          </div>
+        </section>
+      </div>
+
+      <p class="hint">
+        fp16 is a delivery optimisation: use it with WebGPU. On WASM the model is cast back to fp32 internally
+        and runs slower — see <code>docs/browser.md</code>.
+      </p>
+      <div id="log"></div>
+    </main>
+
+    <script type="module">
+      // Built from the repository root with `npm run build`.
+      import { convertBytes, decodeModel, inspectModel } from '../../dist/index.js';
+
+      const drop = document.getElementById('drop');
+      const input = document.getElementById('file');
+      const inspectCard = document.getElementById('inspect-card');
+      const convertCard = document.getElementById('convert-card');
+      const inspectList = document.getElementById('inspect-list');
+      const convertList = document.getElementById('convert-list');
+      const overflowBox = document.getElementById('overflow');
+      const convertButton = document.getElementById('convert');
+      const downloadLink = document.getElementById('download');
+      const log = document.getElementById('log');
+
+      const mib = (bytes) => `${(bytes / 2 ** 20).toFixed(1)} MiB`;
+      const escapeHtml = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char],
+        );
+      const row = (label, value) => `<dt>${escapeHtml(label)}</dt><dd>${value}</dd>`;
+
+      let state = null;
+      let downloadUrl = null;
+
+      function setLog(text) {
+        log.textContent = text;
+      }
+
+      function reset() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+        downloadLink.hidden = true;
+        downloadLink.removeAttribute('href');
+        overflowBox.innerHTML = '';
+        convertList.innerHTML = '';
+        convertButton.disabled = true;
+        state = null;
+      }
+
+      async function load(file) {
+        reset();
+        inspectCard.hidden = false;
+        convertCard.hidden = false;
+        inspectList.innerHTML = row('file', escapeHtml(file.name));
+        setLog('reading…');
+
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        setLog(`inspecting ${mib(bytes.length)}…`);
+
+        // Yield once so the log paints before the synchronous work starts.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const started = performance.now();
+        let report;
+        try {
+          report = inspectModel(decodeModel(bytes));
+        } catch (error) {
+          inspectList.innerHTML = '';
+          setLog(`Not a valid ONNX model: ${error.message}`);
+          inspectCard.hidden = true;
+          convertCard.hidden = true;
+          return;
+        }
+        const elapsed = Math.round(performance.now() - started);
+        report.fileBytes = bytes.length;
+
+        const overflowCount = report.overflow.findings.length;
+        inspectList.innerHTML = [
+          row('size', mib(bytes.length)),
+          row('graph', escapeHtml(report.graphName || '<unnamed>')),
+          row('nodes', report.counts.nodes.toLocaleString('en-US')),
+          row('initializers', report.counts.initializers.toLocaleString('en-US')),
+          row('float tensors', report.tensors.float32Count.toLocaleString('en-US')),
+          row('projected fp16', mib(report.tensors.projectedPayloadBytes)),
+          row(
+            'overflow',
+            overflowCount === 0
+              ? '<span class="ok">none</span>'
+              : `<span class="bad">${overflowCount} tensor(s) above 65504</span>`,
+          ),
+          row('inspect time', `${elapsed} ms`),
+        ].join('');
+
+        if (overflowCount > 0) {
+          const rows = report.overflow.findings
+            .slice(0, 6)
+            .map(
+              (finding) =>
+                `<tr><td>${escapeHtml(finding.tensor)}</td>` +
+                `<td class="num">${finding.absMax.toExponential(2)}</td>` +
+                `<td>${escapeHtml(finding.fix)}</td></tr>`,
+            )
+            .join('');
+          overflowBox.innerHTML =
+            `<table><thead><tr><th>tensor</th><th class="num">max|value|</th><th>fix</th></tr></thead>` +
+            `<tbody>${rows}</tbody></table>` +
+            (overflowCount > 6 ? `<p class="hint">… ${overflowCount - 6} more</p>` : '');
+        }
+
+        state = { bytes, report };
+        convertButton.disabled = false;
+        convertButton.textContent = 'Convert to fp16';
+        setLog('ready.');
+      }
+
+      function convert() {
+        if (!state) return;
+        convertButton.disabled = true;
+        convertButton.textContent = 'Converting…';
+        setLog('converting… (this blocks the page for a moment)');
+
+        setTimeout(() => {
+          const started = performance.now();
+          try {
+            const { bytes, report } = convertBytes(state.bytes);
+            const elapsed = performance.now() - started;
+
+            convertList.innerHTML = [
+              row('size', `${mib(report.inputBytes)} → <strong>${mib(report.outputBytes)}</strong>`),
+              row('saved', `<span class="ok">${((1 - report.ratio) * 100).toFixed(1)}%</span>`),
+              row('initializers', `${report.convertedTensors.toLocaleString('en-US')} → fp16`),
+              row('constants', `${report.constantsConverted.toLocaleString('en-US')} → fp16`),
+              row('BatchNorm rescaled', String(report.rescaled.length)),
+              row('nodes kept fp32', String(report.blockedNodes.length)),
+              row('casts inserted', String(report.insertedCasts)),
+              row('time', `${Math.round(elapsed)} ms`),
+            ].join('');
+
+            const name = 'model.fp16.onnx';
+            downloadUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+            downloadLink.href = downloadUrl;
+            downloadLink.download = name;
+            downloadLink.hidden = false;
+            setLog('done — download the converted model.');
+          } catch (error) {
+            convertList.innerHTML = '';
+            downloadLink.hidden = true;
+            setLog(`Conversion failed: ${error.message}`);
+          } finally {
+            convertButton.disabled = false;
+            convertButton.textContent = 'Convert again';
+          }
+        }, 0);
+      }
+
+      drop.addEventListener('click', () => input.click());
+      drop.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          input.click();
+        }
+      });
+      input.addEventListener('change', () => {
+        if (input.files?.[0]) load(input.files[0]);
+      });
+      for (const type of ['dragenter', 'dragover']) {
+        drop.addEventListener(type, (event) => {
+          event.preventDefault();
+          drop.classList.add('over');
+        });
+      }
+      for (const type of ['dragleave', 'drop']) {
+        drop.addEventListener(type, () => drop.classList.remove('over'));
+      }
+      drop.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer?.files?.[0];
+        if (file) load(file);
+      });
+      convertButton.addEventListener('click', convert);
+    </script>
+  </body>
+</html>
