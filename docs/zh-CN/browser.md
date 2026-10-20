@@ -5,7 +5,7 @@
 这里要分开回答两个问题：
 
 1. [能在浏览器里跑转换器吗？](#在浏览器中转换) —— 能，核心代码不依赖 Node。
-2. [该在浏览器里跑**转换后的模型**吗？](#在浏览器中运行-fp16-模型) —— 取决于后端。WebGPU：该。WASM：先测量。
+2. [该在浏览器里跑**转换后的模型**吗？](#在浏览器中运行-fp16-模型) —— 取决于后端。WebGPU：可以。WASM：先测一测。
 
 ---
 
@@ -60,7 +60,7 @@
 import { convertBytes } from 'onnx-fp16-guard';
 ```
 
-如果你的目标浏览器没有 `BigInt64Array`（非常老），CLI 仍然可用；`verifyModels` 需要 Node。
+如果你的目标浏览器没有 `BigInt64Array`（非常老的浏览器），CLI 仍然可用；`verifyModels` 需要 Node。
 
 ---
 
@@ -68,9 +68,9 @@ import { convertBytes } from 'onnx-fp16-guard';
 
 转换器只改变存储方式。fp16 是否**更快**取决于执行后端。
 
-### WebGPU：做这件事的理由
+### WebGPU：值得这么做的原因
 
-onnxruntime-web 的 WebGPU 后端有原生 fp16 kernel。字节数减半意味着上传量减半、内存带宽减半，还能用上硬件的 fp16 ALU。
+onnxruntime-web 的 WebGPU 后端有原生 fp16 kernel。数据量减半意味着上传量减半、内存带宽减半，还能用上硬件的 fp16 ALU。
 
 ```ts
 import * as ort from 'onnxruntime-web/webgpu';
@@ -100,8 +100,8 @@ const providers = webgpu ? ['webgpu'] : ['wasm'];
 ### 会话启动检查清单
 
 - `onnxruntime-web` 的版本与 ORT 工具的版本会漂移；上线前用 `verifyModels` 验证。
-- 有意识地设置 `ort.env.wasm.numThreads`：多线程 WASM 需要跨源隔离响应头（`Cross-Origin-Opener-Policy`、`Cross-Origin-Embedder-Policy`）。
-- `.onnx` 用 `Content-Type: application/octet-stream` 提供，并配上长期缓存头；每个构建对应的文件都是不可变的。
+- 按需设置 `ort.env.wasm.numThreads`：多线程 WASM 需要跨源隔离响应头（`Cross-Origin-Opener-Policy`、`Cross-Origin-Embedder-Policy`）。
+- `.onnx` 用 `Content-Type: application/octet-stream` 发送，并配上长期缓存头；每个构建对应的文件都是不可变的。
 - 为 `verify` 和 CPU 设备保留 fp32 模型；fp16 副本是交付优化，不是替代品。
 
 ### 关于没有 fp16 kernel 的算子
