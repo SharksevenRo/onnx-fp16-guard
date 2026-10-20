@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/SharksevenRo/onnx-fp16-guard/discussions
+    about: Ask about a model, a runtime or a flag before filing a bug.
+  - name: Security report
+    url: https://github.com/SharksevenRo/onnx-fp16-guard/security/advisories/new
+    about: Report a crash or memory issue on a crafted model privately.

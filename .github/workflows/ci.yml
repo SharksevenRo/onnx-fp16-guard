@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run build
+      - run: npm test
+      - name: CLI smoke test
+        run: |
+          test -n "$(node dist/cli.js --version)"
+          node dist/cli.js --help | grep -q "Usage:"
+      - name: Package contents
+        run: npm pack --dry-run
+
+  # The converter's whole purpose is numerical correctness; make sure the
+  # package can at least be installed and imported as a consumer would.
+  package:
+    name: pack & import
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm pack
+      - name: Install the tarball in a clean project
+        run: |
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE"/onnx-fp16-guard-*.tgz
+          node --input-type=module -e "
+            import { convertBytes, inspectModel, decodeModel, FP16_MAX } from 'onnx-fp16-guard';
+            if (FP16_MAX !== 65504) throw new Error('bad constant');
+            if (typeof convertBytes !== 'function') throw new Error('bad export');
+            console.log('import ok');
+          "
+          test -n "$(npx onnx-fp16-guard --version)"
+          npx onnx-fp16-guard --help | grep -q "Usage:"

@@ -1,0 +1,73 @@
+name: Bug report
+description: Something converted incorrectly, failed to load, or crashed.
+title: '[bug]: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The two most useful things you can attach are the
+        `inspect --json` output and the conversion report — they usually identify
+        the problem without the model itself.
+
+        :warning: Do not attach proprietary model weights. A synthetic
+        reproduction or the reports below are almost always enough.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get?
+      placeholder: |
+        Converting a 208 MB inpainting model. Expected a 100 MB model with the
+        same output; the converted model produces a constant grey image.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Commands, minimal code, or a link to a synthetic fixture.
+      render: shell
+      placeholder: |
+        npx onnx-fp16-guard convert model.onnx -o model.fp16.onnx --report report.json
+    validations:
+      required: true
+
+  - type: textarea
+    id: inspect
+    attributes:
+      label: Inspection report
+      description: Output of `onnx-fp16-guard inspect model.onnx --json` (redact names if needed).
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: conversion
+    attributes:
+      label: Conversion report
+      description: Output of `--report report.json` or `--json`.
+      render: json
+    validations:
+      required: false
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: onnx-fp16-guard, Node, onnxruntime(-web/-node), OS.
+      placeholder: 'onnx-fp16-guard 0.1.0 · Node 22.12 · onnxruntime-web 1.30 · macOS 15'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues.
+          required: true
+        - label: This is reproducible without a proprietary model, or I can describe it precisely.
+          required: true
