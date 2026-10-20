@@ -8,6 +8,7 @@
 [![CI](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](package.json)
+[![demo](https://img.shields.io/badge/demo-%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E9%87%8C%E8%BD%AC%E6%8D%A2-58a6ff.svg)](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/)
 
 ```bash
 npx onnx-fp16-guard inspect model.onnx
@@ -70,6 +71,8 @@ npx onnx-fp16-guard --help           # 直接用 CLI，无需安装
 ```
 
 需要 Node 18.17+，仅支持 ESM。浏览器与边缘运行时同样可用。
+
+**不想装？直接试[在线演示](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/)——预打包好的库，整个转换过程都在你的浏览器里完成。**
 
 ## CLI
 

@@ -7,6 +7,8 @@
 1. [能在浏览器里跑转换器吗？](#在浏览器中转换) —— 能，核心代码不依赖 Node。
 2. [该在浏览器里跑**转换后的模型**吗？](#在浏览器中运行-fp16-模型) —— 取决于后端。WebGPU：可以。WASM：先测一测。
 
+**在线演示**：<https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/> —— 预打包好的库，整个转换过程都在你的浏览器里完成。
+
 ---
 
 ## 在浏览器中转换
@@ -61,6 +63,18 @@ import { convertBytes } from 'onnx-fp16-guard';
 ```
 
 如果你的目标浏览器没有 `BigInt64Array`（非常老的浏览器），CLI 仍然可用；`verifyModels` 需要 Node。
+
+### 完全不用打包器
+
+`onnx-fp16-guard/browser` 是把 `onnx-proto` 内联后的同一份库：单个文件，没有任何裸模块说明符，可以直接丢到任意静态托管上。
+
+```html
+<script type="module">
+  import { convertBytes } from '/vendor/onnx-fp16-guard/browser.js';
+</script>
+```
+
+[在线演示](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/)用的就是这个文件，仓库的 GitHub Pages 工作流发布的也是它。
 
 ---
 

@@ -8,6 +8,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Pre-bundled browser build: `onnx-fp16-guard/browser` (and `dist/browser.js`)
+  ships the library with `onnx-proto` inlined, so a page can convert models
+  without a bundler, an import map or a CDN.
+- GitHub Pages workflow that publishes the browser example as a static site
+  (`site/index.html` landing page + `examples/browser/` + `dist/browser.js`).
 - Simplified Chinese documentation: `README.zh-CN.md`, `BENCHMARKS.zh-CN.md` and
   `docs/zh-CN/` (why fp16 breaks, how it works, CLI, API, browser, LaMa case
   study, FAQ).

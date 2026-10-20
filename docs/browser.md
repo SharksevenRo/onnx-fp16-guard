@@ -9,6 +9,9 @@ Two separate questions:
 2. [Should I run the _converted model_ in the browser?](#running-fp16-models-in-the-browser)
    — it depends on the backend. WebGPU: yes. WASM: measure first.
 
+**Live demo:** <https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/> —
+the library, pre-bundled, converting a model entirely in your browser.
+
 ---
 
 ## Converting in the browser
@@ -70,6 +73,20 @@ import { convertBytes } from 'onnx-fp16-guard';
 
 If you target a browser without `BigInt64Array` (very old), the CLI still works;
 `verifyModels` needs Node.
+
+### No bundler at all
+
+`onnx-fp16-guard/browser` is the same library with `onnx-proto` inlined: one
+file, no bare import specifiers, so it can be served from any static host.
+
+```html
+<script type="module">
+  import { convertBytes } from '/vendor/onnx-fp16-guard/browser.js';
+</script>
+```
+
+That is what the [live demo](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/)
+uses, and what the repository's GitHub Pages workflow publishes.
 
 ---
 

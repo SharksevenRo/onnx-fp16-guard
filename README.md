@@ -8,6 +8,7 @@
 [![CI](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/SharksevenRo/onnx-fp16-guard/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](package.json)
+[![demo](https://img.shields.io/badge/demo-live%20in%20your%20browser-58a6ff.svg)](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/)
 
 ```bash
 npx onnx-fp16-guard inspect model.onnx
@@ -84,6 +85,9 @@ npx onnx-fp16-guard --help           # CLI, no install
 ```
 
 Node 18.17+. ESM. Works in browsers and edge runtimes.
+
+**No install? Try the [live demo](https://sharksevenro.github.io/onnx-fp16-guard/examples/browser/) —
+the library, pre-bundled, converting a model entirely in your browser.**
 
 ## CLI
 
