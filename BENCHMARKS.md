@@ -1,5 +1,7 @@
 # Benchmarks
 
+> English · [简体中文](BENCHMARKS.zh-CN.md)
+
 Everything here is reproducible on a laptop with the model file. No GPU cluster,
 no hidden test set.
 
@@ -86,10 +88,10 @@ essentially `size / 2`:
 
 | Model                  |         fp32 |         fp16 | Rescaled | Blocked | Notes                    |
 | ---------------------- | -----------: | -----------: | -------: | ------: | ------------------------ |
-| `realesr-general-x4v3` |  4,866,417 B |  2,440,026 B |        0 |       1 | `Resize`; no overflow    |
-| `ppocr_v5_mobile_det`  |  4,748,769 B |  2,407,737 B |        0 |       6 | `Resize`/`TopK` pipeline |
-| `migan`                | 29,541,096 B | 14,800,800 B |        0 |      14 | 14 tensors kept fp32     |
-| `real_esrgan_x4`       | 67,051,616 B | 33,654,592 B |        0 |       2 | no overflow              |
+| `realesr-general-x4v3` |  4,866,417 B |  2,439,928 B |        0 |       1 | `Resize`; no overflow    |
+| `ppocr_v5_mobile_det`  |  4,748,769 B |  2,406,545 B |        0 |       6 | `Resize`/`TopK` pipeline |
+| `migan`                | 29,541,096 B | 14,799,796 B |        0 |      14 | 14 tensors kept fp32     |
+| `real_esrgan_x4`       | 67,051,616 B | 33,654,392 B |        0 |       2 | no overflow              |
 
 All four load in ONNX Runtime 1.30 and produce fp32 outputs; the conversion is
 −49 to −50 % in every case.
@@ -101,7 +103,7 @@ All four load in ONNX Runtime 1.30 and produce fp32 outputs; the conversion is
 - Timings are wall-clock, single run, warm file cache. They are meant as orders
   of magnitude, not a competitive benchmark.
 - Quality numbers come from the ClearPix lab run; raw JSON is in
-  [`lab/lama-quant/results`](https://github.com/SharksevenRo/clearpix/tree/main/lab/lama-quant/results).
+  [`lab/lama-quant/results`](https://clearpix.org/tree/main/lab/lama-quant/results).
 
 ## Adding your own results
 

@@ -1,5 +1,7 @@
 # API reference
 
+> English · [简体中文](zh-CN/api.md)
+
 The package is ESM-only and ships its own TypeScript declarations. Its core
 (`onnx-fp16-guard`) imports no Node built-ins and runs unchanged in browsers,
 workers and edge runtimes. Only `verifyModels()` and the CLI touch Node APIs.

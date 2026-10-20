@@ -1,5 +1,7 @@
 # Why fp16 breaks models (and why nobody tells you)
 
+> English · [简体中文](zh-CN/why-fp16-breaks.md)
+
 > This document is the technical background for the guard implemented in
 > [`src/bn.ts`](../src/bn.ts). The numbers come from a real model — LaMa, 208 MB,
 > 17,480 nodes — see [case-study-lama.md](case-study-lama.md).

@@ -1,5 +1,7 @@
 # CLI reference
 
+> English · [简体中文](zh-CN/cli.md)
+
 ```
 onnx-fp16-guard <command> [options]
 

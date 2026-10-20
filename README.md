@@ -1,5 +1,7 @@
 # onnx-fp16-guard
 
+> English · [简体中文](README.zh-CN.md)
+
 **fp16 conversion for ONNX that refuses to silently destroy your model.**
 
 [![npm](https://img.shields.io/npm/v/onnx-fp16-guard.svg)](https://www.npmjs.com/package/onnx-fp16-guard)
@@ -228,5 +230,5 @@ It guards the one conversion step every other tool performs silently.
 ## License
 
 [Apache-2.0](LICENSE). Built and extracted from the
-[ClearPix](https://github.com/SharksevenRo/clearpix) browser photo editor, where
+[ClearPix](https://clearpix.org) browser photo editor, where
 the same code keeps a 208 MB inpainting model at 102 MB without losing quality.

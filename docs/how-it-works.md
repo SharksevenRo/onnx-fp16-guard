@@ -1,5 +1,7 @@
 # How it works
 
+> English · [简体中文](zh-CN/how-it-works.md)
+
 `convertModel()` is a single pass over a decoded `ModelProto`. Nothing is
 approximated, and every decision is recorded in the returned report.
 
@@ -114,10 +116,10 @@ Honest limits of v0.1:
 ```ts
 const { report } = convertBytes(bytes);
 // report.inputBytes     208044816
-// report.outputBytes    107782990
+// report.outputBytes    106087355
 // report.convertedTensors       606
 // report.constantsConverted     148   (only the ones not consumed by blocked ops)
-// report.retargetedCasts        782
+// report.retargetedCasts        432
 // report.insertedCasts          111
 // report.rescaled               [ { node, k: 16, maxVarianceBefore: 484322, … } ]
 // report.blockedNodes           [ '…/Range_1', … ]

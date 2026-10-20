@@ -1,8 +1,10 @@
 # Case study: LaMa, 208 MB → 102 MB without losing quality
 
+> English · [简体中文](zh-CN/case-study-lama.md)
+
 LaMa is a large-mask inpainting model: 51 M parameters, 17,480 nodes, an FFT
 block (FFC) in almost every layer. We run it fully client-side in
-[ClearPix](https://github.com/SharksevenRo/clearpix) — a browser photo editor —
+[ClearPix](https://clearpix.org) — a browser photo editor —
 so download size is a product feature, not an optimisation.
 
 ## The starting point
@@ -112,7 +114,7 @@ model runs 4.7× faster than on WASM.
 
 The original investigation, with all raw results, is in the ClearPix repository:
 
-- [FINDINGS.md](https://github.com/SharksevenRo/clearpix/blob/main/lab/lama-quant/FINDINGS.md)
-- [Blog: the overflowed tensor](https://github.com/SharksevenRo/clearpix/blob/main/blogs/13-2026-10-17-fp16-quantization-quality-loss-overflowed-tensor.md)
-- [Blog: fp16 ONNX + WebGPU in the browser](https://github.com/SharksevenRo/clearpix/blob/main/blogs/03-2026-10-01-fp16-onnx-webgpu-browser-inference.md)
-- [Blog: the WebGPU Slice off-by-one](https://github.com/SharksevenRo/clearpix/blob/main/blogs/14-2026-10-18-lama-webgpu-slice-off-by-one.md)
+- [FINDINGS.md](https://clearpix.org/blob/main/lab/lama-quant/FINDINGS.md)
+- [Blog: the overflowed tensor](https://clearpix.org/blob/main/blogs/13-2026-10-17-fp16-quantization-quality-loss-overflowed-tensor.md)
+- [Blog: fp16 ONNX + WebGPU in the browser](https://clearpix.org/blob/main/blogs/03-2026-10-01-fp16-onnx-webgpu-browser-inference.md)
+- [Blog: the WebGPU Slice off-by-one](https://clearpix.org/blob/main/blogs/14-2026-10-18-lama-webgpu-slice-off-by-one.md)

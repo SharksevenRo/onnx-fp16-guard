@@ -1,5 +1,7 @@
 # In the browser
 
+> English · [简体中文](zh-CN/browser.md)
+
 Two separate questions:
 
 1. [Can I run the converter in the browser?](#converting-in-the-browser) — yes,
@@ -138,5 +140,5 @@ still loads. If your runtime _does_ support them, pass
 - [How it works](how-it-works.md) — where casts are placed and why
 - [Case study: LaMa](case-study-lama.md) — a 208 MB model shipped at 102 MB
 - ClearPix engineering notes:
-  [fp16 in the browser](https://github.com/SharksevenRo/clearpix/blob/main/blogs/03-2026-10-01-fp16-onnx-webgpu-browser-inference.md),
-  [the overflow bug](https://github.com/SharksevenRo/clearpix/blob/main/blogs/13-2026-10-17-fp16-quantization-quality-loss-overflowed-tensor.md)
+  [fp16 in the browser](https://clearpix.org/blob/main/blogs/03-2026-10-01-fp16-onnx-webgpu-browser-inference.md),
+  [the overflow bug](https://clearpix.org/blob/main/blogs/13-2026-10-17-fp16-quantization-quality-loss-overflowed-tensor.md)

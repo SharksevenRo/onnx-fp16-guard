@@ -1,5 +1,7 @@
 # FAQ
 
+> English · [简体中文](zh-CN/faq.md)
+
 ### Does it need Python, onnxruntime or a GPU?
 
 No. Conversion is pure TypeScript over the protobuf bytes. Only the optional
