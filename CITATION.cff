@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: 'If you use onnx-fp16-guard in research or a product, cite it as below.'
+title: 'onnx-fp16-guard: safe float16 conversion for ONNX models'
+abstract: >-
+  A converter for ONNX models that detects and repairs tensors outside the
+  float16 range before conversion. It fixes the silent BatchNorm running-variance
+  overflow that degrades fp16 models, keeps ops without fp16 kernels in float32,
+  and can fail CI instead of clamping.
+authors:
+  - name: 'ClearPix'
+    website: 'https://clearpix.org'
+type: software
+license: Apache-2.0
+repository-code: 'https://github.com/SharksevenRo/onnx-fp16-guard'
+url: 'https://www.npmjs.com/package/onnx-fp16-guard'
+version: 0.1.0
+date-released: '2026-10-20'
+keywords:
+  - onnx
+  - float16
+  - fp16
+  - quantization
+  - onnxruntime
+  - webgpu
+  - model-compression
